@@ -1,0 +1,16 @@
+{
+  "SKU-DEMO-123": {
+    "status": "SOLD",
+    "sold_on": "ebay",
+    "platforms": {
+      "ebay": false,
+      "depop": false,
+      "poshmark": false
+    }
+  },
+  "287045152832": {
+    "status": "SOLD",
+    "sold_on": "depop",
+    "sold_at": "2026-01-01T01:20:06.906300"
+  }
+}

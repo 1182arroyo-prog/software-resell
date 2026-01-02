@@ -1,0 +1,7 @@
+api.ebay.com:
+    appid: ""
+    certid: ""
+    devid: ""
+    token: ""
+    browse:
+    marketplace: "EBAY_US"
