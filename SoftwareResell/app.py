@@ -19,10 +19,7 @@ class Handler(BaseHTTPRequestHandler):
         return self._send(404, {"ok": False, "error": "not_found"})
 
     def do_POST(self):
-        if not self.path.startswith("/webhook"):
-            return self._send(404, {"ok": False, "error": "not_found"})
-        length = int(self.headers.get("Content-Length", "0"))
-        raw = self.rfile.read(length) if length > 0 else b"{}"
+        if not (self.path.startswith("/webhook") or self.path.startswith("/prepared")):
         try:
             data = json.loads(raw.decode("utf-8"))
         except Exception:
@@ -35,4 +32,9 @@ def main():
     server.serve_forever()
 
 if __name__ == "__main__":
-    main()
+    # --- Seguridad: API KEY requerida ---
+expected = os.environ.get("API_KEY", "")
+provided = self.headers.get("X-API-KEY", "")
+
+if expected and provided != expected:
+    return self._send_json(401, {"ok": False, "error": "unauthorized"})
