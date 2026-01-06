@@ -15,8 +15,8 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    # Healthchecks (Render)
     def do_HEAD(self):
-        # health checks
         if self.path == "/" or self.path.startswith("/health"):
             self.send_response(200)
             self.end_headers()
@@ -30,11 +30,11 @@ class Handler(BaseHTTPRequestHandler):
         return self._send(404, {"ok": False, "error": "not_found", "path": self.path})
 
     def do_POST(self):
-        # Solo aceptamos /webhook o /prepared
+        # Aceptamos solo /webhook o /prepared
         if not (self.path.startswith("/webhook") or self.path.startswith("/prepared")):
             return self._send(404, {"ok": False, "error": "not_found", "path": self.path})
 
-        # --- Seguridad: API KEY requerida ---
+        # --- Seguridad: API KEY ---
         expected = os.environ.get("API_KEY", "")
         provided = self.headers.get("X-API-KEY", "")
         if expected and provided != expected:
@@ -50,6 +50,21 @@ class Handler(BaseHTTPRequestHandler):
             data = {"raw": raw.decode("utf-8", errors="ignore")}
 
         print("INCOMING POST", self.path, data, flush=True)
+
+        # --- Acciones por status ---
+        status = str(data.get("status", "")).upper()
+
+        if status == "SOLD":
+            print("🔥 SOLD DETECTADO - iniciando acción", flush=True)
+
+            # Modo prueba por defecto (NO borra nada)
+            modo_prueba = os.environ.get("MODO_PRUEBA", "true").lower() in ("1", "true", "yes", "y")
+            if modo_prueba:
+                print("🟡 MODO_PRUEBA=true → SIMULADO (no se borra nada)", flush=True)
+            else:
+                # Aquí conectaremos delist REAL (Depop/Posh/eBay)
+                print("🔴 MODO_PRUEBA=false → delist REAL (pendiente de conectar)", flush=True)
+
         return self._send(200, {"ok": True, "received": data})
 
 def main():
